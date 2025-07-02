@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-image: url('/static/crop_background.jpg');
+            background-size: cover;
+            color: white;
+        }
+        .container {
+            margin-top: 50px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1, label, h2, h3 {
+            text-align: center;
+        }
+        #result {
+            margin-top: 20px;
+            color: lightgreen;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="container" id="login-page">
+        <h2>Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+            <h3 id="login-result"></h3>
+        </form>
+    </div>
+
+    <!-- Recommendation Page -->
+    <div class="container" id="recommendation-page" style="display: none;">
+        <h1>Crop Recommendation System</h1>
+        <form id="crop-form">
+            <div class="form-group">
+                <label for="nitrogen">Nitrogen</label>
+                <input type="number" id="nitrogen" name="Nitrogen" class="form-control" placeholder="Enter Nitrogen" required>
+            </div>
+            <div class="form-group">
+                <label for="phosphorus">Phosphorus</label>
+                <input type="number" id="phosphorus" name="Phosphorus" class="form-control" placeholder="Enter Phosphorus" required>
+            </div>
+            <div class="form-group">
+                <label for="potassium">Potassium</label>
+                <input type="number" id="potassium" name="Potassium" class="form-control" placeholder="Enter Potassium" required>
+            </div>
+            <div class="form-group">
+                <label for="temperature">Temperature (°C)</label>
+                <input type="number" id="temperature" name="Temperature" class="form-control" placeholder="Enter Temperature" required>
+            </div>
+            <div class="form-group">
+                <label for="humidity">Humidity (%)</label>
+                <input type="number" id="humidity" name="Humidity" class="form-control" placeholder="Enter Humidity" required>
+            </div>
+            <div class="form-group">
+                <label for="ph">pH Value</label>
+                <input type="number" id="ph" name="pH" class="form-control" placeholder="Enter pH" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="rainfall">Rainfall (mm)</label>
+                <input type="number" id="rainfall" name="Rainfall" class="form-control" placeholder="Enter Rainfall" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Get Recommendation</button>
+            </div>
+            <h3 id="result"></h3>
+            <div class="text-center">
+                <button onclick="logout()" class="btn btn-danger">Logout</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Handle Login Form Submission
+        document.getElementById("login-form").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            const response = await fetch("/login", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById("login-page").style.display = "none";
+                document.getElementById("recommendation-page").style.display = "block";
+            } else {
+                document.getElementById("login-result").textContent = "Error: " + data.message;
+            }
+        });
+
+        // Handle Crop Recommendation Form Submission
+        document.getElementById("crop-form").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            document.getElementById("result").textContent = data.result;
+        });
+
+        // Logout Function
+        function logout() {
+            fetch("/logout").then(() => {
+                document.getElementById("recommendation-page").style.display = "none";
+                document.getElementById("login-page").style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
